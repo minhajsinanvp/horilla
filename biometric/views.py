@@ -773,7 +773,7 @@ def biometric_device_test(_request, device_id):
         zk_device = ZK(
             machine_ip,
             port=port_no,
-            timeout=5,
+            timeout=50000,
             password=int(password),
             force_udp=False,
             ommit_ping=False,
@@ -971,7 +971,7 @@ def zk_employees_fetch(device):
     zk_device = ZK(
         device.machine_ip,
         port=device.port,
-        timeout=1,
+        timeout=5000,
         password=int(device.zk_password),
         force_udp=False,
         ommit_ping=False,
@@ -1017,6 +1017,17 @@ def zk_employees_fetch(device):
                 finger_print = []
             user.__dict__["finger"] = finger_print
             employees.append(user)
+        else:
+            if user_id == "66":
+                employee_data = Employee.objects.filter(badge_id=user_id).first()
+                BiometricEmployees.objects.create(
+                    user_id=user_id,
+                    uid=uid,
+                    device_id=device,
+                    employee_id=employee_data,
+                )
+
+
     return employees
 
 
