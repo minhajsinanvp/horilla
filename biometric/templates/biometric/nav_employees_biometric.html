@@ -20,6 +20,7 @@
   </div>
 
   <div class="oh-main__titlebar oh-main__titlebar--right">
+    
     <div
       class="oh-input-group oh-input__search-group"
       :class="searchShow ? 'oh-input__search-group--show' : ''"
@@ -39,6 +40,16 @@
         hx-vals='{"view":"{{request.GET.view}}"}'
         aria-label="Search Input"
       />
+    </div>
+    <div class="oh-btn-group ml-2">
+      <button
+        class="oh-btn oh-btn--secondary"
+        hx-post="{% url 'sync-biometric-employees' 123 %}"
+        hx-target="#employee-list"
+        hx-indicator="#sync-indicator"
+      >
+        <ion-icon name="sync-outline" class="mr-1"></ion-icon>{% trans "Sync Employees" %}
+      </button>
     </div>
     <div class="oh-main__titlebar-button-container">
       <div class="oh-btn-group ml-2">

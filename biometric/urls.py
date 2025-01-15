@@ -113,4 +113,10 @@ urlpatterns = [
         views.cosec_users_bulk_delete,
         name="cosec-users-bulk-delete",
     ),
+  
+    path('sync-biometric-employees/<int:device_id>/', 
+         views.sync_biometric_employees, 
+         name='sync-biometric-employees',
+    ),
+
 ]

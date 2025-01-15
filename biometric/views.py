@@ -982,8 +982,11 @@ def zk_employees_fetch(device):
     fingers = conn.get_templates()
     employees = []
     for user in users:
+
         user_id = user.user_id
         uid = user.uid
+        if user_id == "4":
+            print("user_id", user.name)
         bio_id = BiometricEmployees.objects.filter(user_id=user_id).first()
         if bio_id:
             employee = bio_id.employee_id
@@ -1018,15 +1021,47 @@ def zk_employees_fetch(device):
             user.__dict__["finger"] = finger_print
             employees.append(user)
         else:
-            if user_id == "66":
-                employee_data = Employee.objects.filter(badge_id=user_id).first()
-                BiometricEmployees.objects.create(
+            employee_data = Employee.objects.filter(badge_id=user_id).first()
+            if employee_data:
+                   BiometricEmployees.objects.create(
                     user_id=user_id,
                     uid=uid,
                     device_id=device,
                     employee_id=employee_data,
-                )
-
+                   )
+            bio_id = BiometricEmployees.objects.filter(user_id=user_id).first()
+            if bio_id:
+                employee = bio_id.employee_id
+                employee_work_info = EmployeeWorkInformation.objects.filter(
+                    employee_id=employee
+                ).first()
+                if employee_work_info:
+                    work_email = (
+                        employee_work_info.email if employee_work_info.email else None
+                    )
+                    phone = employee_work_info.mobile if employee_work_info.mobile else None
+                    job_position = (
+                        employee_work_info.job_position_id
+                        if employee_work_info.job_position_id
+                        else None
+                    )
+                    user.__dict__["work_email"] = work_email
+                    user.__dict__["phone"] = phone
+                    user.__dict__["job_position"] = job_position
+                else:
+                    user.__dict__["work_email"] = None
+                    user.__dict__["phone"] = None
+                    user.__dict__["job_position"] = None
+                user.__dict__["employee"] = employee
+                user.__dict__["badge_id"] = employee.badge_id
+                finger_print = []
+                for finger in fingers:
+                    if finger.uid == uid:
+                        finger_print.append(finger.fid)
+                if not finger_print:
+                    finger_print = []
+                user.__dict__["finger"] = finger_print
+                employees.append(user)
 
     return employees
 
@@ -2052,3 +2087,26 @@ try:
                     pass
 except:
     pass
+
+
+
+def sync_biometric_employees(request, device_id):
+
+    pass
+    # try:
+    #     device = BiometricDevice.objects.get(id=device_id)
+    #     # Fetch data from the biometric device (replace with actual API call)
+    #     biometric_data = device.fetch_employee_data()  # Example: returns [{"user_id": "123", "name": "John Doe", "uuid": "abc123"}]
+
+    #     # Sync employees
+    #     for data in biometric_data:
+    #         Employee.objects.update_or_create(
+    #             user_id=data['user_id'],
+    #             defaults={'name': data['name'], 'uuid': data['uuid']}
+    #         )
+
+    #     return JsonResponse({"status": "success", "message": "Employees synced successfully."})
+    # except BiometricDevice.DoesNotExist:
+    #     return JsonResponse({"status": "error", "message": "Device not found."}, status=404)
+    # except Exception as e:
+    #     return JsonResponse({"status": "error", "message": str(e)}, status=500)
